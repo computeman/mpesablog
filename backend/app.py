@@ -17,7 +17,7 @@ def trigger_request():
     data = request.get_json()
     cart_id = data.get("cart_id")
     phone_number = data.get("phone_number")
-    callBackURL = f"https://mpesacallback.onrender.com/mycallback/{cart_id}"
+    callBackURL = f"https://mpesablog.onrender.com/callback/{cart_id}"
 
     headers = {
         "Content-Type": "application/json",

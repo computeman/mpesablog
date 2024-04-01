@@ -8,7 +8,7 @@ function ProductList() {
 
   useEffect(() => {
     // Fetch the current cart ID from the server
-    fetch("http://127.0.0.1:5000/current_cart")
+    fetch("https://mpesablog.onrender.com/current_cart")
       .then((response) => response.json())
       .then((data) => {
         if (data.error) {
@@ -26,14 +26,14 @@ function ProductList() {
   }, []);
 
   const fetchProducts = () => {
-    fetch("http://127.0.0.1:5000/products")
+    fetch("https://mpesablog.onrender.com/products")
       .then((response) => response.json())
       .then((data) => setProducts(data))
       .catch((error) => console.error("Error fetching products:", error));
   };
 
   const fetchCartItems = (cartId) => {
-    fetch(`http://127.0.0.1:5000/cart?cart_id=${cartId}`)
+    fetch(`https://mpesablog.onrender.com/cart?cart_id=${cartId}`)
       .then((response) => response.json())
       .then((data) => setCartItems(data))
       .catch((error) => console.error("Error fetching cart items:", error));
@@ -46,7 +46,7 @@ function ProductList() {
     }
 
     // Add item to the current cart
-    fetch(`http://127.0.0.1:5000/cart`, {
+    fetch(`https://mpesablog.onrender.com/cart`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -79,7 +79,7 @@ function ProductList() {
     }
 
     // Send trigger request
-    fetch("http://127.0.0.1:5000/trigger", {
+    fetch("https://mpesablog.onrender.com/trigger", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -106,7 +106,7 @@ function ProductList() {
   };
 
   const handleRemoveFromCart = (cartItemId) => {
-    fetch(`http://127.0.0.1:5000/cart/${cartItemId}`, {
+    fetch(`https://mpesablog.onrender.com/cart/${cartItemId}`, {
       method: "DELETE",
     })
       .then((response) => response.json())
