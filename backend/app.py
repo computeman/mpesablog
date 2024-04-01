@@ -65,45 +65,58 @@ def create_order_from_cart(cart):
 
 
 @app.route("/callback/<int:cart_id>", methods=["POST"])
-def callback_handler(cart_id):
-    data = request.get_json()
-    print(data)
+def test_callback():
+    try:
+        data = request.get_json()
+        print("Received data:", data)
+        return jsonify({"success": True, "message": "Data received successfully"}), 200
+    except Exception as e:
+        print("Error:", str(e))
+        return (
+            jsonify({"success": False, "message": "Error processing the request"}),
+            400,
+        )
 
-    # Extract the relevant data from the callback
-    items = data["Body"]["stkCallback"]["CallbackMetadata"]["Item"]
-    extracted_data = {item["Name"]: item.get("Value", None) for item in items}
 
-    # Extract relevant information
-    mpesa_receipt_number = extracted_data.get("MpesaReceiptNumber")
-    payment_amount = extracted_data.get("Amount")
-    transaction_date = extracted_data.get("TransactionDate")
+# def callback_handler(cart_id):
+#     data = request.get_json()
+#     print(data)
 
-    # Find the cart associated with the cart_id
-    cart = CartItem.query.get(cart_id)
-    if not cart:
-        return jsonify({"error": "Cart not found"}), 404
+#     # Extract the relevant data from the callback
+#     items = data["Body"]["stkCallback"]["CallbackMetadata"]["Item"]
+#     extracted_data = {item["Name"]: item.get("Value", None) for item in items}
 
-    # Create an order using the cart items
-    order = create_order_from_cart(cart)
+#     # Extract relevant information
+#     mpesa_receipt_number = extracted_data.get("MpesaReceiptNumber")
+#     payment_amount = extracted_data.get("Amount")
+#     transaction_date = extracted_data.get("TransactionDate")
 
-    if not order:
-        return jsonify({"error": "Failed to create order"}), 500
+#     # Find the cart associated with the cart_id
+#     cart = CartItem.query.get(cart_id)
+#     if not cart:
+#         return jsonify({"error": "Cart not found"}), 404
 
-    # Create a new Payment record associated with the order
-    payment = Payment(
-        order=order,
-        payment_amount=int(payment_amount),
-        payment_date=transaction_date,
-        payment_method="mpesa",
-        status="paid",
-        transaction_id=mpesa_receipt_number,
-    )
+#     # Create an order using the cart items
+#     order = create_order_from_cart(cart)
 
-    # Add the payment to the database
-    db.session.add(payment)
-    db.session.commit()
+#     if not order:
+#         return jsonify({"error": "Failed to create order"}), 500
 
-    return jsonify({"success": True, "order_id": order.id})
+#     # Create a new Payment record associated with the order
+#     payment = Payment(
+#         order=order,
+#         payment_amount=int(payment_amount),
+#         payment_date=transaction_date,
+#         payment_method="mpesa",
+#         status="paid",
+#         transaction_id=mpesa_receipt_number,
+#     )
+
+#     # Add the payment to the database
+#     db.session.add(payment)
+#     db.session.commit()
+
+#     return jsonify({"success": True, "order_id": order.id})
 
 
 @app.route("/products", methods=["GET"])
