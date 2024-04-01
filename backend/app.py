@@ -65,10 +65,11 @@ def create_order_from_cart(cart):
 
 
 @app.route("/callback/<int:cart_id>", methods=["POST"])
-def test_callback():
+def test_callback(cart_id):
     try:
         data = request.get_json()
         print("Received data:", data)
+        print(cart_id)
         return jsonify({"success": True, "message": "Data received successfully"}), 200
     except Exception as e:
         print("Error:", str(e))
