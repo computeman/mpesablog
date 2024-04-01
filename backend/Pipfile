@@ -10,6 +10,7 @@ flask-sqlalchemy = "*"
 requests = "*"
 sqlalchemy = "*"
 flask-cors = "*"
+gunicorn = "*"
 
 [dev-packages]
 
