@@ -68,7 +68,7 @@ class CartItem(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     product = db.relationship(
-        "Product", backref=db.backref("cart_items", lazy="dynamic")
+        "Product", backref=db.backref("cart_items_rel", lazy="dynamic")
     )
 
     def __repr__(self):
