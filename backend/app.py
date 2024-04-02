@@ -89,7 +89,6 @@ def callback_handler(cart_id):
     items = data["Body"]["stkCallback"]["CallbackMetadata"]["Item"]
     extracted_data = {item["Name"]: item.get("Value", None) for item in items}
 
-    # Extract relevant information
     mpesa_receipt_number = extracted_data.get("MpesaReceiptNumber")
     payment_amount = extracted_data.get("Amount")
     transaction_date = extracted_data.get("TransactionDate")
@@ -101,9 +100,6 @@ def callback_handler(cart_id):
 
     # Create an order using the cart items
     order = create_order_from_cart(cart)
-
-    if not order:
-        return jsonify({"error": "Failed to create order"}), 500
 
     # Create a new Payment record associated with the order
     payment = Payment(
