@@ -21,7 +21,7 @@ def trigger_request():
 
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer wrL50i3Luf4orCi42m8BCdYOTOds",
+        "Authorization": "Bearer NpxSfdJSratTgfDYXYrFwIExyj2d",
     }
 
     payload = {
@@ -50,6 +50,11 @@ def create_order_from_cart(cart):
     # Create an order instance
     order = Order()
 
+    # Calculate the total order amount
+    total_amount = sum(
+        cart_item.product.price * cart_item.quantity for cart_item in cart.cart_items
+    )
+
     # Copy cart items to the order items
     for cart_item in cart.cart_items:
         order_item = OrderItem(
@@ -57,8 +62,19 @@ def create_order_from_cart(cart):
         )
         order.order_items.append(order_item)
 
-    # Add the order to the database session and commit
+    # Create a payment instance
+    payment = Payment(
+        payment_amount=total_amount,
+        payment_date=datetime.utcnow(),
+        payment_method="Credit Card",  # Update this as needed
+        status="Paid",
+        transaction_id="TX123456789",  # Update this as needed
+    )
+    order.payment = payment
+
+    # Add the order and payment to the database session and commit
     db.session.add(order)
+    db.session.add(payment)
     db.session.commit()
 
     return order

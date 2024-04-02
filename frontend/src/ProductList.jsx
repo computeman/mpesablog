@@ -79,7 +79,7 @@ function ProductList() {
     }
 
     // Send trigger request
-    fetch("https://mpesablog.onrender.com/trigger", {
+    fetch("http://127.0.0.1:5000/trigger", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
