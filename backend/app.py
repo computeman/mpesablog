@@ -22,7 +22,7 @@ def trigger_request():
 
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer NpxSfdJSratTgfDYXYrFwIExyj2d",
+        "Authorization": "Bearer SRAXPQa8eGea6sWKFEqwqw9TYKaA",
     }
 
     payload = {
