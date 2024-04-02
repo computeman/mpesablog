@@ -95,7 +95,7 @@ def callback_handler(cart_id):
     transaction_date = extracted_data.get("TransactionDate")
 
     # Find the cart associated with the cart_id
-    cart = CartItem.query.get(cart_id)
+    cart = Cart.query.get(cart_id)
     if not cart:
         return jsonify({"error": "Cart not found"}), 404
 
