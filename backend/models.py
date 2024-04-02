@@ -11,7 +11,7 @@ class Product(db.Model):
     description = db.Column(db.Text)
     price = db.Column(db.Float, nullable=False)
     order_items = db.relationship("OrderItem", backref="product", lazy=True)
-    cart_items = db.relationship("CartItem", backref="product", lazy=True)
+    cart_items = db.relationship("CartItem", backref="cart_product", lazy=True)
 
     def __repr__(self):
         return f"Product(name={self.name}, price={self.price})"
@@ -67,7 +67,9 @@ class CartItem(db.Model):
     cart_id = db.Column(db.Integer, db.ForeignKey("cart.id"), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
-    product = db.relationship("Product", backref="cart_items", lazy="joined")
+    product = db.relationship(
+        "Product", backref=db.backref("cart_items", lazy="dynamic")
+    )
 
     def __repr__(self):
         return f"CartItem(cart_id={self.cart_id}, product_id={self.product_id}, quantity={self.quantity})"
