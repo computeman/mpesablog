@@ -88,7 +88,7 @@ def callback_handler(cart_id):
     # Create a new Payment record associated with the order
     payment = Payment(
         order=order,
-        payment_amount=int(payment_amount),
+        payment_amount=payment_amount,
         payment_date=transaction_date,
         payment_method="mpesa",
         status="paid",
