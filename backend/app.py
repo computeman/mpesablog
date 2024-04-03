@@ -69,13 +69,24 @@ def create_order_from_cart(cart):
 def callback_handler(cart_id):
     data = request.get_json()
 
+    # Debugging: Print received data
+    print("Received data:", data)
+
     # Extract the relevant data from the callback
     items = data["Body"]["stkCallback"]["CallbackMetadata"]["Item"]
     extracted_data = {item["Name"]: item.get("Value", None) for item in items}
 
+    # Debugging: Print extracted data
+    print("Extracted data:", extracted_data)
+
     mpesa_receipt_number = extracted_data.get("MpesaReceiptNumber")
     payment_amount = extracted_data.get("Amount")
     transaction_date = extracted_data.get("TransactionDate")
+
+    # Debugging: Print extracted payment details
+    print("Mpesa Receipt Number:", mpesa_receipt_number)
+    print("Payment Amount:", payment_amount)
+    print("Transaction Date:", transaction_date)
 
     # Find the cart associated with the cart_id
     cart = Cart.query.get(cart_id)
@@ -84,6 +95,9 @@ def callback_handler(cart_id):
 
     # Create an order using the cart items
     order = create_order_from_cart(cart)
+
+    # Debugging: Print created order details
+    print("Created Order:", order)
 
     # Create a new Payment record associated with the order
     payment = Payment(
@@ -94,6 +108,9 @@ def callback_handler(cart_id):
         status="paid",
         transaction_id=mpesa_receipt_number,
     )
+
+    # Debugging: Print created payment details
+    print("Created Payment:", payment)
 
     # Add the payment to the database
     db.session.add(payment)
