@@ -22,7 +22,7 @@ def trigger_request():
 
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer YitmCVEHMlngECyAoGV2fA6Bo893",
+        "Authorization": "Bearer MMYNH192A3aR2xvshR1WbVuOV8Ap",
     }
 
     payload = {
@@ -58,11 +58,11 @@ def create_order_from_cart(cart):
         )
         order.order_items.append(order_item)
 
-    # Add the order and payment to the database session and commit
+    # Add the order to the database session and commit
     db.session.add(order)
     db.session.commit()
 
-    return order
+    return order.id
 
 
 @app.route("/callback/<int:cart_id>", methods=["POST"])
