@@ -62,7 +62,7 @@ def create_order_from_cart(cart):
     db.session.add(order)
     db.session.commit()
 
-    return order.id
+    return order
 
 
 @app.route("/callback/<int:cart_id>", methods=["POST"])
@@ -212,6 +212,35 @@ def remove_from_cart(cart_item_id):
     db.session.delete(cart_item)
     db.session.commit()
     return jsonify({"message": "Item removed from cart"})
+
+
+@app.route("/orders", methods=["GET"])
+def get_orders():
+    orders = Order.query.all()
+    orders_list = []
+    for order in orders:
+        order_data = {
+            "id": order.id,
+            "order_items": [
+                {"product_id": item.product_id, "quantity": item.quantity}
+                for item in order.order_items
+            ],
+            "payment": (
+                {
+                    "payment_amount": order.payment.payment_amount,
+                    "payment_date": order.payment.payment_date.strftime("%Y-%m-%d"),
+                    "payment_method": order.payment.payment_method,
+                    "status": order.payment.status,
+                    "transaction_id": order.payment.transaction_id,
+                }
+                if order.payment
+                else None
+            ),
+        }
+        orders_list.append(order_data)
+
+    return jsonify({"orders": orders_list})
+
 
 
 if __name__ == "__main__":
