@@ -47,22 +47,44 @@ def trigger_request():
     return response.text.encode("utf8")
 
 
-def create_order_from_cart(cart):
-    # Create an order instance
-    order = Order()
+# def create_order_from_cart(cart):
+#     # Create an order instance
+#     order = Order()
 
-    # Copy cart items to the order items
+#     # Copy cart items to the order items
+#     for cart_item in cart.cart_items:
+#         order_item = OrderItem(
+#             product_id=cart_item.product_id, quantity=cart_item.quantity
+#         )
+#         order.order_items.append(order_item)
+
+#     # Add the order to the database session and commit
+#     db.session.add(order)
+#     db.session.commit()
+
+
+#     return order
+def create_order_from_cart(cart):
+    if not cart:
+        return jsonify({"error": "Cart not found"}), 404
+
+    # Create an order using the cart items
+    order = Order()
+    db.session.add(order)
+    db.session.flush()  # Flush to get the order ID before adding order items
+
     for cart_item in cart.cart_items:
         order_item = OrderItem(
-            product_id=cart_item.product_id, quantity=cart_item.quantity
+            order_id=order.id,
+            product_id=cart_item.product_id,
+            quantity=cart_item.quantity,
         )
-        order.order_items.append(order_item)
+        db.session.add(order_item)
 
-    # Add the order to the database session and commit
-    db.session.add(order)
+    # Commit changes to the database
     db.session.commit()
 
-    return order
+    return jsonify({"success": True, "order_id": order.id})
 
 
 @app.route("/callback/<int:cart_id>", methods=["POST"])
@@ -240,7 +262,6 @@ def get_orders():
         orders_list.append(order_data)
 
     return jsonify({"orders": orders_list})
-
 
 
 if __name__ == "__main__":
