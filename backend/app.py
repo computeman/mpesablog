@@ -22,7 +22,7 @@ def trigger_request():
 
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer NiUjA7W9O7B8GngGzvKMB9xVJyAJ",
+        "Authorization": "Bearer MMYNH192A3aR2xvshR1WbVuOV8Ap",
     }
 
     payload = {
@@ -62,31 +62,7 @@ def trigger_request():
 #     db.session.add(order)
 #     db.session.commit()
 
-
 #     return order
-
-
-def create_order_from_cart(cart):
-    if not cart:
-        return jsonify({"error": "Cart not found"}), 404
-
-    # Create an order using the cart items
-    order = Order()
-    db.session.add(order)
-    db.session.flush()  # Flush to get the order ID before adding order items
-
-    for cart_item in cart.cart_items:
-        order_item = OrderItem(
-            order_id=order.id,
-            product_id=cart_item.product_id,
-            quantity=cart_item.quantity,
-        )
-        db.session.add(order_item)
-
-    # Commit changes to the database
-    db.session.commit()
-
-    return order
 
 
 @app.route("/callback/<int:cart_id>", methods=["POST"])
@@ -96,51 +72,51 @@ def callback_handler(cart_id):
     # Debugging: Print received data
     print("Received data:", data)
 
-    # # Extract the relevant data from the callback
-    # items = data["Body"]["stkCallback"]["CallbackMetadata"]["Item"]
-    # extracted_data = {item["Name"]: item.get("Value", None) for item in items}
+    # Extract the relevant data from the callback
+    items = data["Body"]["stkCallback"]["CallbackMetadata"]["Item"]
+    extracted_data = {item["Name"]: item.get("Value", None) for item in items}
 
-    # # Debugging: Print extracted data
-    # print("Extracted data:", extracted_data)
+    # Debugging: Print extracted data
+    print("Extracted data:", extracted_data)
 
-    # mpesa_receipt_number = extracted_data.get("MpesaReceiptNumber")
-    # payment_amount = extracted_data.get("Amount")
-    # transaction_date = extracted_data.get("TransactionDate")
+    mpesa_receipt_number = extracted_data.get("MpesaReceiptNumber")
+    payment_amount = extracted_data.get("Amount")
+    transaction_date = extracted_data.get("TransactionDate")
 
-    # # Debugging: Print extracted payment details
-    # print("Mpesa Receipt Number:", mpesa_receipt_number)
-    # print("Payment Amount:", payment_amount)
-    # print("Transaction Date:", transaction_date)
+    # Debugging: Print extracted payment details
+    print("Mpesa Receipt Number:", mpesa_receipt_number)
+    print("Payment Amount:", payment_amount)
+    print("Transaction Date:", transaction_date)
 
-    # # Find the cart associated with the cart_id
-    # cart = Cart.query.get(cart_id)
-    # if not cart:
-    #     return jsonify({"error": "Cart not found"}), 404
+    # Find the cart associated with the cart_id
+    cart = Cart.query.get(cart_id)
+    if not cart:
+        return jsonify({"error": "Cart not found"}), 404
 
-    # # Create an order using the cart items
-    # order = create_order_from_cart(cart)
+    # Create an order using the cart items
+    order = create_order_from_cart(cart)
 
-    # # Debugging: Print created order details
-    # print("Created Order:", order)
+    # Debugging: Print created order details
+    print("Created Order:", order)
 
-    # # Create a new Payment record associated with the order
-    # payment = Payment(
-    #     order=order,
-    #     payment_amount=payment_amount,
-    #     payment_date=transaction_date,
-    #     payment_method="mpesa",
-    #     status="paid",
-    #     transaction_id=mpesa_receipt_number,
-    # )
+    # Create a new Payment record associated with the order
+    payment = Payment(
+        order=order,
+        payment_amount=payment_amount,
+        payment_date=transaction_date,
+        payment_method="mpesa",
+        status="paid",
+        transaction_id=mpesa_receipt_number,
+    )
 
-    # # Debugging: Print created payment details
-    # print("Created Payment:", payment)
+    # Debugging: Print created payment details
+    print("Created Payment:", payment)
 
-    # # Add the payment to the database
-    # db.session.add(payment)
-    # db.session.commit()
+    # Add the payment to the database
+    db.session.add(payment)
+    db.session.commit()
 
-    return jsonify({"success": True})
+    return jsonify({"success": True, "order_id": order.id})
 
 
 @app.route("/products", methods=["GET"])
@@ -197,7 +173,7 @@ def get_current_cart():
 def add_to_cart():
     data = request.get_json()
     product_id = data.get("product_id")
-    quantity = data.get("quantity", 1)
+    quantity = data.get("quantity", 1)  # Default quantity to 1
 
     product = Product.query.get(product_id)
     if not product:
@@ -264,6 +240,32 @@ def get_orders():
         orders_list.append(order_data)
 
     return jsonify({"orders": orders_list})
+
+
+@app.route("/create_order/<int:cart_id>", methods=["POST"])
+def create_order_from_cart(cart_id):
+    # Find the cart associated with the cart_id
+    cart = Cart.query.get(cart_id)
+    if not cart:
+        return jsonify({"error": "Cart not found"}), 404
+
+    # Create an order using the cart items
+    order = Order()
+    db.session.add(order)
+    db.session.flush()  # Flush to get the order ID before adding order items
+
+    for cart_item in cart.cart_items:
+        order_item = OrderItem(
+            order_id=order.id,
+            product_id=cart_item.product_id,
+            quantity=cart_item.quantity,
+        )
+        db.session.add(order_item)
+
+    # Commit changes to the database
+    db.session.commit()
+
+    return jsonify({"success": True, "order_id": order.id})
 
 
 if __name__ == "__main__":
