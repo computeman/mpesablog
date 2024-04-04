@@ -18,11 +18,11 @@ def trigger_request():
     data = request.get_json()
     cart_id = data.get("cart_id")
     phone_number = data.get("phone_number")
-    callBackURL = f"https://public-phones-clean.loca.lt/callback/{cart_id}"
+    callBackURL = f"https://mpesablog.onrender.com/callback/{cart_id}"
 
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer Ng9KCUo88DaBeynGGHP5DCENMBQr",
+        "Authorization": "Bearer NiUjA7W9O7B8GngGzvKMB9xVJyAJ",
     }
 
     payload = {
@@ -65,6 +65,7 @@ def trigger_request():
 
 #     return order
 
+
 def create_order_from_cart(cart):
     if not cart:
         return jsonify({"error": "Cart not found"}), 404
@@ -95,21 +96,21 @@ def callback_handler(cart_id):
     # Debugging: Print received data
     print("Received data:", data)
 
-    # Extract the relevant data from the callback
-    items = data["Body"]["stkCallback"]["CallbackMetadata"]["Item"]
-    extracted_data = {item["Name"]: item.get("Value", None) for item in items}
+    # # Extract the relevant data from the callback
+    # items = data["Body"]["stkCallback"]["CallbackMetadata"]["Item"]
+    # extracted_data = {item["Name"]: item.get("Value", None) for item in items}
 
-    # Debugging: Print extracted data
-    print("Extracted data:", extracted_data)
+    # # Debugging: Print extracted data
+    # print("Extracted data:", extracted_data)
 
-    mpesa_receipt_number = extracted_data.get("MpesaReceiptNumber")
-    payment_amount = extracted_data.get("Amount")
-    transaction_date = extracted_data.get("TransactionDate")
+    # mpesa_receipt_number = extracted_data.get("MpesaReceiptNumber")
+    # payment_amount = extracted_data.get("Amount")
+    # transaction_date = extracted_data.get("TransactionDate")
 
-    # Debugging: Print extracted payment details
-    print("Mpesa Receipt Number:", mpesa_receipt_number)
-    print("Payment Amount:", payment_amount)
-    print("Transaction Date:", transaction_date)
+    # # Debugging: Print extracted payment details
+    # print("Mpesa Receipt Number:", mpesa_receipt_number)
+    # print("Payment Amount:", payment_amount)
+    # print("Transaction Date:", transaction_date)
 
     # # Find the cart associated with the cart_id
     # cart = Cart.query.get(cart_id)
