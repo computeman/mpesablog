@@ -22,7 +22,7 @@ def trigger_request():
 
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer MMYNH192A3aR2xvshR1WbVuOV8Ap",
+        "Authorization": "Bearer df0taicTlgbkhDDmAVPqOrfy2PMV",
     }
 
     payload = {
@@ -84,7 +84,7 @@ def create_order_from_cart(cart):
     # Commit changes to the database
     db.session.commit()
 
-    return jsonify({"success": True, "order_id": order.id})
+    return order
 
 
 @app.route("/callback/<int:cart_id>", methods=["POST"])
