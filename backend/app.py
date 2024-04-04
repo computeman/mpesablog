@@ -18,11 +18,11 @@ def trigger_request():
     data = request.get_json()
     cart_id = data.get("cart_id")
     phone_number = data.get("phone_number")
-    callBackURL = f"https://mpesablog.onrender.com/callback/{cart_id}"
+    callBackURL = f"https://public-phones-clean.loca.lt/callback/{cart_id}"
 
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer df0taicTlgbkhDDmAVPqOrfy2PMV",
+        "Authorization": "Bearer Ng9KCUo88DaBeynGGHP5DCENMBQr",
     }
 
     payload = {
@@ -64,6 +64,7 @@ def trigger_request():
 
 
 #     return order
+
 def create_order_from_cart(cart):
     if not cart:
         return jsonify({"error": "Cart not found"}), 404
@@ -110,35 +111,35 @@ def callback_handler(cart_id):
     print("Payment Amount:", payment_amount)
     print("Transaction Date:", transaction_date)
 
-    # Find the cart associated with the cart_id
-    cart = Cart.query.get(cart_id)
-    if not cart:
-        return jsonify({"error": "Cart not found"}), 404
+    # # Find the cart associated with the cart_id
+    # cart = Cart.query.get(cart_id)
+    # if not cart:
+    #     return jsonify({"error": "Cart not found"}), 404
 
-    # Create an order using the cart items
-    order = create_order_from_cart(cart)
+    # # Create an order using the cart items
+    # order = create_order_from_cart(cart)
 
-    # Debugging: Print created order details
-    print("Created Order:", order)
+    # # Debugging: Print created order details
+    # print("Created Order:", order)
 
-    # Create a new Payment record associated with the order
-    payment = Payment(
-        order=order,
-        payment_amount=payment_amount,
-        payment_date=transaction_date,
-        payment_method="mpesa",
-        status="paid",
-        transaction_id=mpesa_receipt_number,
-    )
+    # # Create a new Payment record associated with the order
+    # payment = Payment(
+    #     order=order,
+    #     payment_amount=payment_amount,
+    #     payment_date=transaction_date,
+    #     payment_method="mpesa",
+    #     status="paid",
+    #     transaction_id=mpesa_receipt_number,
+    # )
 
-    # Debugging: Print created payment details
-    print("Created Payment:", payment)
+    # # Debugging: Print created payment details
+    # print("Created Payment:", payment)
 
-    # Add the payment to the database
-    db.session.add(payment)
-    db.session.commit()
+    # # Add the payment to the database
+    # db.session.add(payment)
+    # db.session.commit()
 
-    return jsonify({"success": True, "order_id": order.id})
+    return jsonify({"success": True})
 
 
 @app.route("/products", methods=["GET"])
@@ -195,7 +196,7 @@ def get_current_cart():
 def add_to_cart():
     data = request.get_json()
     product_id = data.get("product_id")
-    quantity = data.get("quantity", 1)  # Default quantity to 1
+    quantity = data.get("quantity", 1)
 
     product = Product.query.get(product_id)
     if not product:
