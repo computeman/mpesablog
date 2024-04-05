@@ -29,13 +29,13 @@ def trigger_request():
 
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer NiUjA7W9O7B8GngGzvKMB9xVJyAJ",
+        "Authorization": "Bearer Hn49ben38HmN2NllUlLjFBtwucBw",
     }
 
     payload = {
         "BusinessShortCode": 174379,
-        "Password": "MTc0Mzc5YmZiMjc5ZjlhYTliZGJjZjE1OGU5N2RkNzFhNDY3Y2QyZTBjODkzMDU5YjEwZjc4ZTZiNzJhZGExZWQyYzkxOTIwMjQwMzI2MDAwMzU2",
-        "Timestamp": "20240326000356",
+        "Password": "MTc0Mzc5YmZiMjc5ZjlhYTliZGJjZjE1OGU5N2RkNzFhNDY3Y2QyZTBjODkzMDU5YjEwZjc4ZTZiNzJhZGExZWQyYzkxOTIwMjQwNDA1MDgxOTEx",
+        "Timestamp": "20240405081911",
         "TransactionType": "CustomerPayBillOnline",
         "Amount": 1,
         "PartyA": phone_number,
@@ -45,6 +45,7 @@ def trigger_request():
         "AccountReference": "CompanyXLTD",
         "TransactionDesc": "Payment of X",
     }
+
     response = requests.request(
         "POST",
         "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
@@ -112,7 +113,8 @@ def callback_handler(cart_id):
 
     mpesa_receipt_number = extracted_data.get("MpesaReceiptNumber")
     payment_amount = extracted_data.get("Amount")
-    transaction_date = extracted_data.get("TransactionDate")
+    transaction_date_str = extracted_data.get("TransactionDate")
+    transaction_date = datetime.datetime.strptime(transaction_date_str, "%Y%m%d%H%M%S")
 
     # Debugging: Print extracted payment details
     print("Mpesa Receipt Number:", mpesa_receipt_number)
@@ -134,7 +136,7 @@ def callback_handler(cart_id):
     # Create a new Payment record associated with the order
     payment = Payment(
         order_id=str(order_id),
-        payment_amount=payment_amount,
+        payment_amount=float(payment_amount),
         payment_date=transaction_date,
         payment_method="mpesa",
         status="paid",
