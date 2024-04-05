@@ -114,7 +114,7 @@ def callback_handler(cart_id):
     mpesa_receipt_number = extracted_data.get("MpesaReceiptNumber")
     payment_amount = extracted_data.get("Amount")
     transaction_date_str = extracted_data.get("TransactionDate")
-    transaction_date = datetime.datetime.strptime(transaction_date_str, "%Y%m%d%H%M%S")
+    transaction_date = datetime.strptime(transaction_date_str, "%Y%m%d%H%M%S")
 
     # Debugging: Print extracted payment details
     print("Mpesa Receipt Number:", mpesa_receipt_number)
