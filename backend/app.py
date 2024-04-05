@@ -91,26 +91,26 @@ def create_order_from_cart(cart):
 
 @app.route("/callback/<int:cart_id>", methods=["POST"])
 def callback_handler(cart_id):
-    data = request.get_json()
+    # data = request.get_json()
 
-    # Debugging: Print received data
-    print("Received data:", data)
+    # # Debugging: Print received data
+    # print("Received data:", data)
 
-    # Extract the relevant data from the callback
-    items = data["Body"]["stkCallback"]["CallbackMetadata"]["Item"]
-    extracted_data = {item["Name"]: item.get("Value", None) for item in items}
+    # # Extract the relevant data from the callback
+    # items = data["Body"]["stkCallback"]["CallbackMetadata"]["Item"]
+    # extracted_data = {item["Name"]: item.get("Value", None) for item in items}
 
-    # Debugging: Print extracted data
-    print("Extracted data:", extracted_data)
+    # # Debugging: Print extracted data
+    # print("Extracted data:", extracted_data)
 
-    mpesa_receipt_number = extracted_data.get("MpesaReceiptNumber")
-    payment_amount = extracted_data.get("Amount")
-    transaction_date = extracted_data.get("TransactionDate")
+    # mpesa_receipt_number = extracted_data.get("MpesaReceiptNumber")
+    # payment_amount = extracted_data.get("Amount")
+    # transaction_date = extracted_data.get("TransactionDate")
 
-    # Debugging: Print extracted payment details
-    print("Mpesa Receipt Number:", mpesa_receipt_number)
-    print("Payment Amount:", payment_amount)
-    print("Transaction Date:", transaction_date)
+    # # Debugging: Print extracted payment details
+    # print("Mpesa Receipt Number:", mpesa_receipt_number)
+    # print("Payment Amount:", payment_amount)
+    # print("Transaction Date:", transaction_date)
 
     # Find the cart associated with the cart_id
     cart = Cart.query.get(cart_id)
@@ -124,6 +124,9 @@ def callback_handler(cart_id):
     print("Created Order:", order)
 
     # Create a new Payment record associated with the order
+    payment_amount = 100.0
+    transaction_date = datetime.now()
+    mpesa_receipt_number = "ABC123"
     payment = Payment(
         order_id=order,
         payment_amount=payment_amount,
