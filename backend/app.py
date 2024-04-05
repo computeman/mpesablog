@@ -5,12 +5,19 @@ from flask_sqlalchemy import SQLAlchemy
 import requests
 from datetime import datetime
 from models import db, Product, Order, Payment, CartItem, OrderItem, Cart
+from sqlalchemy import create_engine, Column, Integer, Float, String, DateTime
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///shop.db"
 CORS(app)
 db.init_app(app)
 migrate = Migrate(app, db)
+Base = declarative_base()
+
+engine = create_engine("sqlite:///shop.db")
+Session = sessionmaker(bind=engine)
 
 
 @app.route("/trigger", methods=["POST"])
@@ -86,31 +93,31 @@ def create_order_from_cart(cart):
     # Commit changes to the database
     db.session.commit()
 
-    return jsonify({"success": True, "order_id": order.id})
+    return order.id
 
 
 @app.route("/callback/<int:cart_id>", methods=["POST"])
 def callback_handler(cart_id):
-    # data = request.get_json()
+    data = request.get_json()
 
-    # # Debugging: Print received data
-    # print("Received data:", data)
+    # Debugging: Print received data
+    print("Received data:", data)
 
-    # # Extract the relevant data from the callback
-    # items = data["Body"]["stkCallback"]["CallbackMetadata"]["Item"]
-    # extracted_data = {item["Name"]: item.get("Value", None) for item in items}
+    # Extract the relevant data from the callback
+    items = data["Body"]["stkCallback"]["CallbackMetadata"]["Item"]
+    extracted_data = {item["Name"]: item.get("Value", None) for item in items}
 
-    # # Debugging: Print extracted data
-    # print("Extracted data:", extracted_data)
+    # Debugging: Print extracted data
+    print("Extracted data:", extracted_data)
 
-    # mpesa_receipt_number = extracted_data.get("MpesaReceiptNumber")
-    # payment_amount = extracted_data.get("Amount")
-    # transaction_date = extracted_data.get("TransactionDate")
+    mpesa_receipt_number = extracted_data.get("MpesaReceiptNumber")
+    payment_amount = extracted_data.get("Amount")
+    transaction_date = extracted_data.get("TransactionDate")
 
-    # # Debugging: Print extracted payment details
-    # print("Mpesa Receipt Number:", mpesa_receipt_number)
-    # print("Payment Amount:", payment_amount)
-    # print("Transaction Date:", transaction_date)
+    # Debugging: Print extracted payment details
+    print("Mpesa Receipt Number:", mpesa_receipt_number)
+    print("Payment Amount:", payment_amount)
+    print("Transaction Date:", transaction_date)
 
     # Find the cart associated with the cart_id
     cart = Cart.query.get(cart_id)
@@ -118,17 +125,15 @@ def callback_handler(cart_id):
         return jsonify({"error": "Cart not found"}), 404
 
     # Create an order using the cart items
-    order = create_order_from_cart(cart)
+    order_id = create_order_from_cart(cart)
+    order = Order.query.get(order_id)
 
     # Debugging: Print created order details
     print("Created Order:", order)
 
     # Create a new Payment record associated with the order
-    payment_amount = 100.0
-    transaction_date = datetime.now()
-    mpesa_receipt_number = "ABC123"
     payment = Payment(
-        order_id=order,
+        order_id=str(order_id),
         payment_amount=payment_amount,
         payment_date=transaction_date,
         payment_method="mpesa",
