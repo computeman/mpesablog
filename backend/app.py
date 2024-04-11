@@ -262,9 +262,7 @@ def get_orders():
             "payment": (
                 {
                     "payment_amount": order.payment.payment_amount,
-                    "payment_date": datetime.strptime(
-                        order.payment.payment_date, "%Y-%m-%d %H:%M:%S"
-                    ).strftime("%Y-%m-%d %H:%M:%S"),
+                    "payment_date": order.payment.payment_date,
                     "payment_method": order.payment.payment_method,
                     "status": order.payment.status,
                     "transaction_id": order.payment.transaction_id,
