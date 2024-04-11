@@ -29,7 +29,7 @@ def trigger_request():
 
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer ey2T9BovujqfQNAxKrOIY0WVkSTn",
+        "Authorization": "Bearer rwlxPDLBoK1Dpo7FJVy27c3NIbPu",
     }
 
     payload = {
@@ -53,25 +53,6 @@ def trigger_request():
         json=payload,
     )
     return response.text.encode("utf8")
-
-
-# def create_order_from_cart(cart):
-#     # Create an order instance
-#     order = Order()
-
-#     # Copy cart items to the order items
-#     for cart_item in cart.cart_items:
-#         order_item = OrderItem(
-#             product_id=cart_item.product_id, quantity=cart_item.quantity
-#         )
-#         order.order_items.append(order_item)
-
-#     # Add the order to the database session and commit
-#     db.session.add(order)
-#     db.session.commit()
-
-
-#     return order
 
 
 def create_order_from_cart(cart):
@@ -133,22 +114,22 @@ def callback_handler(cart_id):
     # Debugging: Print created order details
     print("Created Order:", order)
 
-    # Create a new Payment record associated with the order
-    payment = Payment(
-        order_id=order_id,
-        payment_amount=float(payment_amount),
-        payment_date=transaction_date,
-        payment_method="mpesa",
-        status="paid",
-        transaction_id=mpesa_receipt_number,
-    )
+    # # Create a new Payment record associated with the order
+    # payment = Payment(
+    #     order_id=order_id,
+    #     payment_amount=float(payment_amount),
+    #     payment_date=transaction_date,
+    #     payment_method="mpesa",
+    #     status="paid",
+    #     transaction_id=mpesa_receipt_number,
+    # )
 
-    # Debugging: Print created payment details
-    print("Created Payment:", payment)
+    # # Debugging: Print created payment details
+    # print("Created Payment:", payment)
 
-    # Add the payment to the database
-    db.session.add(payment)
-    db.session.commit()
+    # # Add the payment to the database
+    # db.session.add(payment)
+    # db.session.commit()
 
     return jsonify({"success": True, "order_id": order.id})
 
