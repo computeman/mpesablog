@@ -40,7 +40,7 @@ class Payment(db.Model):
     __tablename__ = "payment"
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey("order.id"), nullable=False)
-    payment_amount = db.Column(db.Integer)
+    payment_amount = db.Column(db.Float)
     payment_date = db.Column(db.DateTime)
     payment_method = db.Column(db.String)
     status = db.Column(db.String)
