@@ -114,22 +114,22 @@ def callback_handler(cart_id):
     # Debugging: Print created order details
     print("Created Order:", order)
 
-    # # Create a new Payment record associated with the order
-    # payment = Payment(
-    #     order_id=order_id,
-    #     payment_amount=float(payment_amount),
-    #     payment_date=transaction_date,
-    #     payment_method="mpesa",
-    #     status="paid",
-    #     transaction_id=mpesa_receipt_number,
-    # )
+    # Create a new Payment record associated with the order
+    payment = Payment(
+        order_id=order,
+        payment_amount=float(payment_amount),
+        payment_date=transaction_date,
+        payment_method="mpesa",
+        status="paid",
+        transaction_id=mpesa_receipt_number,
+    )
 
-    # # Debugging: Print created payment details
-    # print("Created Payment:", payment)
+    # Debugging: Print created payment details
+    print("Created Payment:", payment)
 
-    # # Add the payment to the database
-    # db.session.add(payment)
-    # db.session.commit()
+    # Add the payment to the database
+    db.session.add(payment)
+    db.session.commit()
 
     return jsonify({"success": True, "order_id": order.id})
 
