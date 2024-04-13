@@ -27,6 +27,27 @@ def trigger_request():
     phone_number = data.get("phone_number")
     callBackURL = f"https://mpesablog.onrender.com/callback/{cart_id}"
 
+    # Retrieve the cart items associated with the provided cart_id
+    cart_items = CartItem.query.filter_by(cart_id=cart_id).all()
+
+    # Initialize total amount to 0
+    total_amount = 0
+
+    # Iterate over cart items and sum up the total amount
+    for cart_item in cart_items:
+        # Retrieve the associated product for the cart item
+        product = cart_item.product
+
+        # Access the price of the product and multiply by the quantity
+        product_price = product.price
+        quantity = cart_item.quantity
+        item_total = product_price * quantity
+
+        # Add the item total to the total amount
+        total_amount += item_total
+    print("Total Amount:", total_amount)
+    total_amount = int(total_amount)
+
     headers = {
         "Content-Type": "application/json",
         "Authorization": "Bearer rwlxPDLBoK1Dpo7FJVy27c3NIbPu",
@@ -37,7 +58,7 @@ def trigger_request():
         "Password": "MTc0Mzc5YmZiMjc5ZjlhYTliZGJjZjE1OGU5N2RkNzFhNDY3Y2QyZTBjODkzMDU5YjEwZjc4ZTZiNzJhZGExZWQyYzkxOTIwMjQwNDA1MDgxOTEx",
         "Timestamp": "20240405081911",
         "TransactionType": "CustomerPayBillOnline",
-        "Amount": 1,
+        "Amount": total_amount,
         "PartyA": phone_number,
         "PartyB": 174379,
         "PhoneNumber": phone_number,
@@ -256,6 +277,33 @@ def get_orders():
 
     return jsonify({"orders": orders_list})
 
+
+@app.route("/get_token")
+def get_token():
+    # Make a request to the Safaricom API to obtain the access token
+    response = requests.request(
+        "GET",
+        "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",
+        headers={
+            "Authorization": "Bearer cFJZcjZ6anEwaThMMXp6d1FETUxwWkIzeVBDa2hNc2M6UmYyMkJmWm9nMHFRR2xWOQ=="
+        },
+    )
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        # Parse the JSON response
+        data = response.json()
+        # Extract the access token from the response
+        access_token = data.get("access_token")
+        # Return the access token as a JSON response
+        return jsonify({"access_token": access_token})
+    else:
+        # If the request was not successful, return an error message
+        return jsonify({"error": "Failed to obtain access token"}), 500
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
 if __name__ == "__main__":
     with app.app_context():
