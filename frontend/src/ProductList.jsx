@@ -78,30 +78,47 @@ function ProductList() {
       return;
     }
 
-    // Send trigger request
-    fetch("http://127.0.0.1:5000/trigger", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        phone_number: phoneNumber,
-        cart_id: cartId,
-      }),
-    })
+    // Fetch the token
+    fetch("http://127.0.0.1:5000/get_token")
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Failed to initiate payment");
+          throw new Error("Failed to fetch access token");
         }
-        return response.text();
+        return response.json();
       })
       .then((data) => {
-        console.log("Payment initiated:", data);
-        alert("Payment initiated successfully");
+        const accessToken = data.access_token;
+
+        // Send trigger request with the obtained access token
+        fetch("http://127.0.0.1:5000/trigger", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            phone_number: phoneNumber,
+            cart_id: cartId,
+            access_token: accessToken, // Send the access token as a parameter
+          }),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Failed to initiate payment");
+            }
+            return response.text();
+          })
+          .then((data) => {
+            console.log("Payment initiated:", data);
+            alert("Payment initiated successfully");
+          })
+          .catch((error) => {
+            console.error("Error initiating payment:", error);
+            alert("Failed to initiate payment");
+          });
       })
       .catch((error) => {
-        console.error("Error initiating payment:", error);
-        alert("Failed to initiate payment");
+        console.error("Error fetching access token:", error);
+        alert("Failed to fetch access token");
       });
   };
 

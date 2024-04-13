@@ -25,6 +25,7 @@ def trigger_request():
     data = request.get_json()
     cart_id = data.get("cart_id")
     phone_number = data.get("phone_number")
+    access_token = data.get("access_token")
     callBackURL = f"https://mpesablog.onrender.com/callback/{cart_id}"
 
     # Retrieve the cart items associated with the provided cart_id
@@ -50,7 +51,7 @@ def trigger_request():
 
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer rwlxPDLBoK1Dpo7FJVy27c3NIbPu",
+        "Authorization": f"Bearer {access_token}",
     }
 
     payload = {
