@@ -56,6 +56,7 @@ class Payment(db.Model):
 class Cart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(50), default="pending")
     cart_items = db.relationship("CartItem", backref="cart", lazy=True)
 
     def __repr__(self):
