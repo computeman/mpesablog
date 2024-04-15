@@ -156,6 +156,11 @@ def callback_handler(cart_id):
     db.session.add(payment)
     db.session.commit()
 
+    # Update the cart status to "paid"
+    cart.status = "paid"
+    db.session.add(cart)
+    db.session.commit()
+
     return jsonify({"success": True, "order_id": order.id})
 
 
@@ -289,8 +294,8 @@ CONSUMER_SECRET = "a7E8wS5MAryOGnLrlAOtIhpoeaZ5geNlz8cQ8ta2BS22ujG5g3DzW05IwnSnM
 
 @app.route("/get_token")
 def get_access_token():
-    consumer_key = CONSUMER_KEY 
-    consumer_secret = CONSUMER_SECRET  
+    consumer_key = CONSUMER_KEY
+    consumer_secret = CONSUMER_SECRET
     access_token_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
     headers = {"Content-Type": "application/json"}
     auth = (consumer_key, consumer_secret)
