@@ -79,7 +79,7 @@ function ProductList() {
     }
 
     // Fetch the token
-    fetch("http://127.0.0.1:5000/get_token")
+    fetch("https://mpesablog.onrender.com/get_token")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch access token");

@@ -1,3 +1,4 @@
+import json
 from flask_cors import CORS
 from flask import Flask, request, jsonify
 from flask_migrate import Migrate
@@ -8,6 +9,8 @@ from models import db, Product, Order, Payment, CartItem, OrderItem, Cart
 from sqlalchemy import create_engine, Column, Integer, Float, String, DateTime
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+import base64
+
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///shop.db"
@@ -279,28 +282,26 @@ def get_orders():
     return jsonify({"orders": orders_list})
 
 
-@app.route("/get_token")
-def get_token():
-    # Make a request to the Safaricom API to obtain the access token
-    response = requests.request(
-        "GET",
-        "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",
-        headers={
-            "Authorization": "Bearer cFJZcjZ6anEwaThMMXp6d1FETUxwWkIzeVBDa2hNc2M6UmYyMkJmWm9nMHFRR2xWOQ=="
-        },
-    )
+# M-Pesa API credentials
+CONSUMER_KEY = "fyQvljfJAb8bObgVjZAQdAPTghe6U3w6t8BGGaVwQ39TQRiX"
+CONSUMER_SECRET = "a7E8wS5MAryOGnLrlAOtIhpoeaZ5geNlz8cQ8ta2BS22ujG5g3DzW05IwnSnMP2G"
 
-    # Check if the request was successful
-    if response.status_code == 200:
-        # Parse the JSON response
-        data = response.json()
-        # Extract the access token from the response
-        access_token = data.get("access_token")
-        # Return the access token as a JSON response
+
+@app.route("/get_token")
+def get_access_token():
+    consumer_key = CONSUMER_KEY 
+    consumer_secret = CONSUMER_SECRET  
+    access_token_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
+    headers = {"Content-Type": "application/json"}
+    auth = (consumer_key, consumer_secret)
+    try:
+        response = requests.get(access_token_url, headers=headers, auth=auth)
+        response.raise_for_status()  # Raise exception for non-2xx status codes
+        result = response.json()
+        access_token = result["access_token"]
         return jsonify({"access_token": access_token})
-    else:
-        # If the request was not successful, return an error message
-        return jsonify({"error": "Failed to obtain access token"}), 500
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": str(e)})
 
 
 if __name__ == "__main__":
