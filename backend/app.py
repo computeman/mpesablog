@@ -163,6 +163,13 @@ def callback_handler(cart_id):
 
     return jsonify({"success": True, "order_id": order.id})
 
+@app.route("/poll_cart_status/<int:cart_id>", methods=["GET"])
+def poll_cart_status(cart_id):
+    cart = Cart.query.get(cart_id)
+    if not cart:
+        return jsonify({"error": "Cart not found"}), 404
+
+    return jsonify({"status": cart.status})
 
 @app.route("/products", methods=["GET"])
 def get_products():
