@@ -10,6 +10,7 @@ from sqlalchemy import create_engine, Column, Integer, Float, String, DateTime
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 import base64
+from flask_socketio import SocketIO
 
 
 app = Flask(__name__)
@@ -18,6 +19,7 @@ CORS(app)
 db.init_app(app)
 migrate = Migrate(app, db)
 Base = declarative_base()
+socketio = SocketIO(app)
 
 engine = create_engine("sqlite:///shop.db")
 Session = sessionmaker(bind=engine)
@@ -29,7 +31,9 @@ def trigger_request():
     cart_id = data.get("cart_id")
     phone_number = data.get("phone_number")
     access_token = data.get("access_token")
-    callBackURL = f"https://mpesablog.onrender.com/callback/{cart_id}"
+    callBackURL = (
+        f"https://fw3rvo-ip-154-159-237-115.tunnelmole.net//callback/{cart_id}"
+    )
 
     # Retrieve the cart items associated with the provided cart_id
     cart_items = CartItem.query.filter_by(cart_id=cart_id).all()
@@ -62,7 +66,7 @@ def trigger_request():
         "Password": "MTc0Mzc5YmZiMjc5ZjlhYTliZGJjZjE1OGU5N2RkNzFhNDY3Y2QyZTBjODkzMDU5YjEwZjc4ZTZiNzJhZGExZWQyYzkxOTIwMjQwNDA1MDgxOTEx",
         "Timestamp": "20240405081911",
         "TransactionType": "CustomerPayBillOnline",
-        "Amount": total_amount,
+        "Amount": 1,
         "PartyA": phone_number,
         "PartyB": 174379,
         "PhoneNumber": phone_number,
@@ -101,6 +105,18 @@ def create_order_from_cart(cart):
     db.session.commit()
 
     return order.id
+
+
+@app.route("/mpesa/callback", methods=["POST"])
+def handle_callback():
+    callback_data = request.json
+
+    # Print the callback data to the terminal
+    print(callback_data)
+
+    # Return a response to the M-Pesa server
+    response_data = {"status": "success"}
+    return jsonify(response_data)
 
 
 @app.route("/callback/<int:cart_id>", methods=["POST"])
@@ -163,13 +179,14 @@ def callback_handler(cart_id):
 
     return jsonify({"success": True, "order_id": order.id})
 
-@app.route("/poll_cart_status/<int:cart_id>", methods=["GET"])
-def poll_cart_status(cart_id):
+
+@socketio.on("poll_cart_status")
+def handle_poll_cart_status(cart_id):
     cart = Cart.query.get(cart_id)
     if not cart:
         return jsonify({"error": "Cart not found"}), 404
-
     return jsonify({"status": cart.status})
+
 
 @app.route("/products", methods=["GET"])
 def get_products():
@@ -319,4 +336,4 @@ def get_access_token():
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+        socketio.run(app, debug=True)
