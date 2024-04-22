@@ -10,7 +10,6 @@ from sqlalchemy import create_engine, Column, Integer, Float, String, DateTime
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 import base64
-from flask_socketio import SocketIO
 
 
 app = Flask(__name__)
@@ -19,10 +18,30 @@ CORS(app)
 db.init_app(app)
 migrate = Migrate(app, db)
 Base = declarative_base()
-socketio = SocketIO(app)
 
 engine = create_engine("sqlite:///shop.db")
 Session = sessionmaker(bind=engine)
+
+# M-Pesa API credentials
+CONSUMER_KEY = "fyQvljfJAb8bObgVjZAQdAPTghe6U3w6t8BGGaVwQ39TQRiX"
+CONSUMER_SECRET = "a7E8wS5MAryOGnLrlAOtIhpoeaZ5geNlz8cQ8ta2BS22ujG5g3DzW05IwnSnMP2G"
+
+
+@app.route("/get_token")
+def get_access_token():
+    consumer_key = CONSUMER_KEY
+    consumer_secret = CONSUMER_SECRET
+    access_token_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
+    headers = {"Content-Type": "application/json"}
+    auth = (consumer_key, consumer_secret)
+    try:
+        response = requests.get(access_token_url, headers=headers, auth=auth)
+        response.raise_for_status()  # Raise exception for non-2xx status codes
+        result = response.json()
+        access_token = result["access_token"]
+        return jsonify({"access_token": access_token})
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": str(e)})
 
 
 @app.route("/trigger", methods=["POST"])
@@ -31,9 +50,7 @@ def trigger_request():
     cart_id = data.get("cart_id")
     phone_number = data.get("phone_number")
     access_token = data.get("access_token")
-    callBackURL = (
-        f"https://fw3rvo-ip-154-159-237-115.tunnelmole.net//callback/{cart_id}"
-    )
+    callBackURL = f"https://xyeafy-ip-154-159-252-206.tunnelmole.net/callback/{cart_id}"
 
     # Retrieve the cart items associated with the provided cart_id
     cart_items = CartItem.query.filter_by(cart_id=cart_id).all()
@@ -107,18 +124,6 @@ def create_order_from_cart(cart):
     return order.id
 
 
-@app.route("/mpesa/callback", methods=["POST"])
-def handle_callback():
-    callback_data = request.json
-
-    # Print the callback data to the terminal
-    print(callback_data)
-
-    # Return a response to the M-Pesa server
-    response_data = {"status": "success"}
-    return jsonify(response_data)
-
-
 @app.route("/callback/<int:cart_id>", methods=["POST"])
 def callback_handler(cart_id):
     data = request.get_json()
@@ -180,7 +185,7 @@ def callback_handler(cart_id):
     return jsonify({"success": True, "order_id": order.id})
 
 
-@socketio.on("poll_cart_status")
+@app.route("/poll_cart_status/<int:cart_id>", methods=["GET"])
 def handle_poll_cart_status(cart_id):
     cart = Cart.query.get(cart_id)
     if not cart:
@@ -311,29 +316,7 @@ def get_orders():
     return jsonify({"orders": orders_list})
 
 
-# M-Pesa API credentials
-CONSUMER_KEY = "fyQvljfJAb8bObgVjZAQdAPTghe6U3w6t8BGGaVwQ39TQRiX"
-CONSUMER_SECRET = "a7E8wS5MAryOGnLrlAOtIhpoeaZ5geNlz8cQ8ta2BS22ujG5g3DzW05IwnSnMP2G"
-
-
-@app.route("/get_token")
-def get_access_token():
-    consumer_key = CONSUMER_KEY
-    consumer_secret = CONSUMER_SECRET
-    access_token_url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
-    headers = {"Content-Type": "application/json"}
-    auth = (consumer_key, consumer_secret)
-    try:
-        response = requests.get(access_token_url, headers=headers, auth=auth)
-        response.raise_for_status()  # Raise exception for non-2xx status codes
-        result = response.json()
-        access_token = result["access_token"]
-        return jsonify({"access_token": access_token})
-    except requests.exceptions.RequestException as e:
-        return jsonify({"error": str(e)})
-
-
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-        socketio.run(app, debug=True)
+app.run(debug=True)

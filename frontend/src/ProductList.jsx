@@ -9,7 +9,7 @@ function ProductList() {
 
   useEffect(() => {
     // Fetch the current cart ID from the server
-    fetch("https://mpesablog.onrender.com/current_cart")
+    fetch("http://127.0.0.1:5000/current_cart")
       .then((response) => response.json())
       .then((data) => {
         if (data.error) {
@@ -27,14 +27,14 @@ function ProductList() {
   }, []);
 
   const fetchProducts = () => {
-    fetch("https://mpesablog.onrender.com/products")
+    fetch("http://127.0.0.1:5000/products")
       .then((response) => response.json())
       .then((data) => setProducts(data))
       .catch((error) => console.error("Error fetching products:", error));
   };
 
   const fetchCartItems = (cartId) => {
-    fetch(`https://mpesablog.onrender.com/cart?cart_id=${cartId}`)
+    fetch(`http://127.0.0.1:5000/cart?cart_id=${cartId}`)
       .then((response) => response.json())
       .then((data) => setCartItems(data))
       .catch((error) => console.error("Error fetching cart items:", error));
@@ -47,7 +47,7 @@ function ProductList() {
     }
 
     // Add item to the current cart
-    fetch(`https://mpesablog.onrender.com/cart`, {
+    fetch(`http://127.0.0.1:5000/cart`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -80,7 +80,7 @@ function ProductList() {
     }
 
     // Fetch the token
-    fetch("https://mpesablog.onrender.com/get_token")
+    fetch("http://127.0.0.1:5000/get_token")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch access token");
@@ -141,11 +141,11 @@ function ProductList() {
           setPaymentStatus("error");
           clearInterval(interval);
         });
-    }, 15000);
+    }, 5000);
   };
 
   const handleRemoveFromCart = (cartItemId) => {
-    fetch(`https://mpesablog.onrender.com/cart/${cartItemId}`, {
+    fetch(`http://127.0.0.1:5000/cart/${cartItemId}`, {
       method: "DELETE",
     })
       .then((response) => response.json())
@@ -202,7 +202,14 @@ function ProductList() {
           value={phoneNumber}
           onChange={(e) => setPhoneNumber(e.target.value)}
         />
-        <button onClick={handleCheckout}>Checkout</button>
+        <button
+          onClick={() => {
+            handleCheckout();
+            startPollingPaymentStatus();
+          }}
+        >
+          Checkout
+        </button>
       </div>
       {paymentStatus === "paid" && (
         <div>
