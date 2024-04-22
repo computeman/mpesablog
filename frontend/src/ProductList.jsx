@@ -124,6 +124,8 @@ function ProductList() {
       });
   };
   const startPollingPaymentStatus = () => {
+    let timeoutId; // Variable to store the timeout ID
+
     const interval = setInterval(() => {
       fetch(`http://127.0.0.1:5000/poll_cart_status/${cartId}`)
         .then((response) => response.json())
@@ -131,17 +133,25 @@ function ProductList() {
           if (data.status === "paid") {
             setPaymentStatus("paid");
             clearInterval(interval);
+            clearTimeout(timeoutId); // Clear the timeout
           } else if (data.status === "failed") {
             setPaymentStatus("failed");
             clearInterval(interval);
+            clearTimeout(timeoutId); // Clear the timeout
           }
         })
         .catch((err) => {
           console.error("Error checking payment status:", err);
           setPaymentStatus("error");
           clearInterval(interval);
+          clearTimeout(timeoutId); // Clear the timeout
         });
-    }, 5000);
+    }, 5000); // Poll every 5 seconds
+
+    timeoutId = setTimeout(() => {
+      setPaymentStatus("failed"); // Mark payment as failed after 30 seconds
+      clearInterval(interval); // Stop polling
+    }, 30000);
   };
 
   const handleRemoveFromCart = (cartItemId) => {
